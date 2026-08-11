@@ -172,6 +172,11 @@ button {
   font-weight: 500;
 }
 
+.task-name-label {
+  cursor: text;
+  user-select: none;
+}
+
 .task-name {
   white-space: nowrap;
   overflow: hidden;
@@ -194,6 +199,10 @@ button {
 .task-input:read-only {
   pointer-events: none;
   caret-color: transparent;
+}
+
+.task-input:not(:read-only) {
+  user-select: text;
 }
 
 .task-duration {

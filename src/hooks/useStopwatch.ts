@@ -210,7 +210,7 @@ export function useStopwatch() {
 
   const renameCurrent = useCallback((name: string) => {
     setState((prev) => {
-      if (prev.status !== 'naming' || prev.tasks.length === 0) return prev
+      if (prev.tasks.length === 0) return prev
       return {
         ...prev,
         tasks: [{ ...prev.tasks[0], name }, ...prev.tasks.slice(1)],
