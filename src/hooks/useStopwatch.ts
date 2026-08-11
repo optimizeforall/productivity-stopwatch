@@ -104,7 +104,9 @@ function currentElapsed(state: PersistedState, now: number): number {
 }
 
 function completedDuration(tasks: Task[]): number {
-  return tasks.slice(1).reduce((sum, task) => sum + task.durationMs, 0)
+  const total = tasks.slice(1).reduce((sum, task) => sum + task.durationMs, 0)
+  // Whole seconds only, so the total ticks over in phase with the current task.
+  return Math.floor(total / 1000) * 1000
 }
 
 function idleElapsed(state: PersistedState, now: number): number {
