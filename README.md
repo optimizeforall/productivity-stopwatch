@@ -17,6 +17,8 @@ The big number is time on the **current task**. The gray number under it is the 
 
 Tasks are numbered in the order you started them, newest on top. The active row is highlighted. Double-click its name to rename it. **Reset** (with a confirmation) clears the day.
 
+**Undo** steps back one action: from a running task back to its Begin screen, or from a Begin screen back to the task you just shipped. Any time it throws away is added to idle, so undoing never hides time.
+
 Theme (light/dark) and the day's tasks, timers, and idle time persist in `localStorage`. A running timer keeps counting across refresh.
 
 ## Run locally

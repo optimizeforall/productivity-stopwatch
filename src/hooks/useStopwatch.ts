@@ -221,6 +221,36 @@ export function useStopwatch() {
     })
   }, [])
 
+  const undo = useCallback(() => {
+    setState((prev) => {
+      const now = Date.now()
+
+      if (prev.status === 'naming') {
+        const [, previous, ...older] = prev.tasks
+        if (previous == null) return prev
+        return {
+          ...prev,
+          tasks: [previous, ...older],
+          accumulatedMs: previous.durationMs,
+          startedAt: now,
+          status: 'running',
+          ...stopIdle(prev, now),
+        }
+      }
+
+      const discarded = currentElapsed(prev, now)
+      return {
+        ...prev,
+        tasks: [{ ...prev.tasks[0], durationMs: 0 }, ...prev.tasks.slice(1)],
+        accumulatedMs: 0,
+        startedAt: null,
+        status: 'naming',
+        idleAccumulatedMs: idleElapsed(prev, now) + discarded,
+        idleStartedAt: now,
+      }
+    })
+  }, [])
+
   const pause = useCallback(() => {
     setState((prev) => {
       if (prev.status !== 'running') return prev
@@ -285,7 +315,9 @@ export function useStopwatch() {
     totalMs,
     idleMs,
     canBegin: (state.tasks[0]?.name.trim().length ?? 0) > 0,
+    canUndo: state.status === 'naming' ? state.tasks.length > 1 : true,
     ship,
+    undo,
     begin,
     pause,
     resume,

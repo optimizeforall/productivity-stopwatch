@@ -16,7 +16,9 @@ export default function App() {
     totalMs,
     idleMs,
     canBegin,
+    canUndo,
     ship,
+    undo,
     begin,
     pause,
     resume,
@@ -32,6 +34,13 @@ export default function App() {
     listRef.current?.focusName()
   }
 
+  function undoAndFocus() {
+    flushSync(() => {
+      undo()
+    })
+    listRef.current?.focusName()
+  }
+
   function resetAndFocus() {
     flushSync(() => {
       reset()
@@ -41,7 +50,13 @@ export default function App() {
 
   return (
     <div className="app">
-      <Header theme={theme} onReset={resetAndFocus} onToggleTheme={toggleTheme} />
+      <Header
+        theme={theme}
+        canUndo={canUndo}
+        onUndo={undoAndFocus}
+        onReset={resetAndFocus}
+        onToggleTheme={toggleTheme}
+      />
       <TimerDisplay
         currentMs={currentMs}
         totalMs={totalMs}

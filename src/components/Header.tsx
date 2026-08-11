@@ -3,17 +3,35 @@ import { ConfirmDialog } from './ConfirmDialog.tsx'
 
 type HeaderProps = {
   theme: 'light' | 'dark'
+  canUndo: boolean
+  onUndo: () => void
   onReset: () => void
   onToggleTheme: () => void
 }
 
-export function Header({ theme, onReset, onToggleTheme }: HeaderProps) {
+export function Header({
+  theme,
+  canUndo,
+  onUndo,
+  onReset,
+  onToggleTheme,
+}: HeaderProps) {
   const [confirmingReset, setConfirmingReset] = useState(false)
 
   return (
     <header className="header">
       <h1 className="header-title">Stopwatch</h1>
       <div className="header-actions">
+        {canUndo ? (
+          <button
+            type="button"
+            className="btn btn-ghost"
+            onClick={onUndo}
+            title="Step back one action. Undone time counts as idle."
+          >
+            Undo
+          </button>
+        ) : null}
         <button
           type="button"
           className="btn btn-ghost"
