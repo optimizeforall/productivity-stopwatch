@@ -324,6 +324,96 @@ button {
   gap: 0.55rem;
 }
 
+.settings-list {
+  margin: 1rem 0 1.15rem;
+}
+
+.settings-option {
+  position: relative;
+}
+
+.settings-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 3.1rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 1.1rem;
+  background: transparent;
+  text-align: left;
+}
+
+.settings-row-copy {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.settings-row-label {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.toggle {
+  flex-shrink: 0;
+  width: 2.55rem;
+  height: 1.5rem;
+  padding: 0.16rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text) 14%, transparent);
+  transition: background 0.16s ease;
+}
+
+.toggle.is-on {
+  background: #3b82f6;
+}
+
+.toggle-thumb {
+  display: block;
+  width: 1.18rem;
+  height: 1.18rem;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.22);
+  transform: translateX(0);
+  transition: transform 0.16s ease;
+}
+
+.toggle.is-on .toggle-thumb {
+  transform: translateX(1.05rem);
+}
+
+.settings-tooltip {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% + 0.45rem);
+  z-index: 1;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 0.85rem;
+  background: var(--bg);
+  box-shadow: var(--shadow);
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.4;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+}
+
+.settings-option:hover .settings-tooltip,
+.settings-row:focus-visible + .settings-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
 .icon-btn {
   width: 2.4rem;
   height: 2.4rem;
@@ -337,7 +427,8 @@ button {
 
 @media (hover: hover) {
   .btn-ghost:hover,
-  .icon-btn:hover {
+  .icon-btn:hover,
+  .settings-row:hover {
     background: color-mix(in srgb, var(--text) 6%, transparent);
   }
 

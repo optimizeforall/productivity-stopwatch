@@ -17,6 +17,7 @@ type PersistedState = {
   idleStartedAt: number | null
   status: Status
   theme: Theme
+  showIdleTicker: boolean
 }
 
 const STORAGE_KEY = 'productivity-stopwatch-v1'
@@ -39,6 +40,7 @@ function createInitialState(): PersistedState {
     idleStartedAt: Date.now(),
     status: 'naming',
     theme: 'dark',
+    showIdleTicker: true,
   }
 }
 
@@ -89,6 +91,7 @@ function loadState(): PersistedState {
         : null,
       status: resolvedStatus,
       theme: parsed.theme === 'light' ? 'light' : 'dark',
+      showIdleTicker: parsed.showIdleTicker !== false,
     }
   } catch {
     return createInitialState()
@@ -289,6 +292,7 @@ export function useStopwatch() {
     setState((prev) => ({
       ...createInitialState(),
       theme: prev.theme,
+      showIdleTicker: prev.showIdleTicker,
     }))
   }, [])
 
@@ -296,6 +300,13 @@ export function useStopwatch() {
     setState((prev) => ({
       ...prev,
       theme: prev.theme === 'dark' ? 'light' : 'dark',
+    }))
+  }, [])
+
+  const toggleIdleTicker = useCallback(() => {
+    setState((prev) => ({
+      ...prev,
+      showIdleTicker: !prev.showIdleTicker,
     }))
   }, [])
 
@@ -316,6 +327,7 @@ export function useStopwatch() {
     currentMs: elapsed,
     totalMs,
     idleMs,
+    showIdleTicker: state.showIdleTicker,
     canBegin: (state.tasks[0]?.name.trim().length ?? 0) > 0,
     canUndo: state.status === 'naming' ? state.tasks.length > 1 : true,
     ship,
@@ -325,6 +337,7 @@ export function useStopwatch() {
     resume,
     reset,
     toggleTheme,
+    toggleIdleTicker,
     renameCurrent,
   }
 }

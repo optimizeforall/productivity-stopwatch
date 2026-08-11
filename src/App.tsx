@@ -15,6 +15,7 @@ export default function App() {
     currentMs,
     totalMs,
     idleMs,
+    showIdleTicker,
     canBegin,
     canUndo,
     ship,
@@ -24,6 +25,7 @@ export default function App() {
     resume,
     reset,
     toggleTheme,
+    toggleIdleTicker,
     renameCurrent,
   } = useStopwatch()
 
@@ -53,14 +55,17 @@ export default function App() {
       <Header
         theme={theme}
         canUndo={canUndo}
+        showIdleTicker={showIdleTicker}
         onUndo={undoAndFocus}
         onReset={resetAndFocus}
         onToggleTheme={toggleTheme}
+        onToggleIdleTicker={toggleIdleTicker}
       />
       <TimerDisplay
         currentMs={currentMs}
         totalMs={totalMs}
         idleMs={idleMs}
+        showIdleTicker={showIdleTicker}
         status={status}
       />
       <TaskList

@@ -1,22 +1,28 @@
 import { useState } from 'react'
 import { ConfirmDialog } from './ConfirmDialog.tsx'
+import { SettingsPanel } from './SettingsPanel.tsx'
 
 type HeaderProps = {
   theme: 'light' | 'dark'
   canUndo: boolean
+  showIdleTicker: boolean
   onUndo: () => void
   onReset: () => void
   onToggleTheme: () => void
+  onToggleIdleTicker: () => void
 }
 
 export function Header({
   theme,
   canUndo,
+  showIdleTicker,
   onUndo,
   onReset,
   onToggleTheme,
+  onToggleIdleTicker,
 }: HeaderProps) {
   const [confirmingReset, setConfirmingReset] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
 
   return (
     <header className="header">
@@ -42,6 +48,14 @@ export function Header({
         <button
           type="button"
           className="icon-btn"
+          onClick={() => setSettingsOpen(true)}
+          aria-label="Settings"
+        >
+          <GearIcon />
+        </button>
+        <button
+          type="button"
+          className="icon-btn"
           onClick={onToggleTheme}
           aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
         >
@@ -60,6 +74,13 @@ export function Header({
           }}
         />
       ) : null}
+      {settingsOpen ? (
+        <SettingsPanel
+          showIdleTicker={showIdleTicker}
+          onToggleIdleTicker={onToggleIdleTicker}
+          onClose={() => setSettingsOpen(false)}
+        />
+      ) : null}
     </header>
   )
 }
@@ -74,6 +95,20 @@ function SunIcon() {
         strokeWidth="1.7"
         strokeLinecap="round"
       />
+    </svg>
+  )
+}
+
+function GearIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden="true">
+      <path
+        d="M10.15 3.7h3.7l.5 2.2 1.95-.8 1.85 1.85-.8 1.95 2.2.5v3.7l-2.2.5.8 1.95-1.85 1.85-1.95-.8-.5 2.2h-3.7l-.5-2.2-1.95.8-1.85-1.85.8-1.95-2.2-.5v-3.7l2.2-.5-.8-1.95 1.85-1.85 1.95.8z"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinejoin="round"
+      />
+      <circle cx="12" cy="12" r="2.55" stroke="currentColor" strokeWidth="1.7" />
     </svg>
   )
 }
