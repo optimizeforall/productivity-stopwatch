@@ -1,3 +1,6 @@
+import { useState } from 'react'
+import { ConfirmDialog } from './ConfirmDialog.tsx'
+
 type HeaderProps = {
   theme: 'light' | 'dark'
   onReset: () => void
@@ -5,11 +8,17 @@ type HeaderProps = {
 }
 
 export function Header({ theme, onReset, onToggleTheme }: HeaderProps) {
+  const [confirmingReset, setConfirmingReset] = useState(false)
+
   return (
     <header className="header">
       <h1 className="header-title">Stopwatch</h1>
       <div className="header-actions">
-        <button type="button" className="btn btn-ghost" onClick={onReset}>
+        <button
+          type="button"
+          className="btn btn-ghost"
+          onClick={() => setConfirmingReset(true)}
+        >
           Reset
         </button>
         <button
@@ -21,6 +30,18 @@ export function Header({ theme, onReset, onToggleTheme }: HeaderProps) {
           {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
         </button>
       </div>
+      {confirmingReset ? (
+        <ConfirmDialog
+          title="Reset the day?"
+          message="This clears every task and both timers. Your theme stays the same."
+          confirmLabel="Reset"
+          onCancel={() => setConfirmingReset(false)}
+          onConfirm={() => {
+            setConfirmingReset(false)
+            onReset()
+          }}
+        />
+      ) : null}
     </header>
   )
 }
