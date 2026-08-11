@@ -16,6 +16,14 @@ npm run build
 npm run preview
 ```
 
+## GitHub Pages
+
+Live URL after deploy: [https://optimizeforall.github.io/productivity-stopwatch/](https://optimizeforall.github.io/productivity-stopwatch/)
+
+1. Push `main` to GitHub (includes the deploy workflow).
+2. In the repo: **Settings → Pages → Build and deployment → Source → GitHub Actions**.
+3. The **Deploy to GitHub Pages** workflow runs on every push to `main`. First load can take a minute.
+
 ## Usage
 
 - **Begin** starts the current task timer.

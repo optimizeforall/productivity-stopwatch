@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  base: process.env.GITHUB_ACTIONS ? '/productivity-stopwatch/' : '/',
   plugins: [
     react(),
     VitePWA({
@@ -45,7 +46,8 @@ export default defineConfig({
         background_color: '#0e0f12',
         display: 'standalone',
         orientation: 'portrait',
-        start_url: '/',
+        start_url: './',
+        scope: './',
         icons: [
           {
             src: 'favicon.svg',
