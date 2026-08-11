@@ -19,8 +19,7 @@ export function formatCurrent(ms: number): string {
 }
 
 export function formatTotal(ms: number): string {
-  const { hours, minutes, seconds } = parts(ms)
-  return `${hours}:${pad(minutes)}:${pad(seconds)}`
+  return formatCurrent(ms)
 }
 
 export function formatMinutes(ms: number): string {
