@@ -14,6 +14,7 @@ export default function App() {
     theme,
     currentMs,
     totalMs,
+    idleMs,
     canBegin,
     ship,
     begin,
@@ -41,7 +42,12 @@ export default function App() {
   return (
     <div className="app">
       <Header theme={theme} onReset={resetAndFocus} onToggleTheme={toggleTheme} />
-      <TimerDisplay currentMs={currentMs} totalMs={totalMs} status={status} />
+      <TimerDisplay
+        currentMs={currentMs}
+        totalMs={totalMs}
+        idleMs={idleMs}
+        status={status}
+      />
       <TaskList
         ref={listRef}
         tasks={tasks}

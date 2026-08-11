@@ -136,6 +136,15 @@ button {
   letter-spacing: 0.04em;
 }
 
+.timer-idle {
+  margin-top: 0.35rem;
+  font-family: var(--mono);
+  font-size: 1.05rem;
+  color: var(--danger);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+
 .task-list {
   flex: 1;
   min-height: 0;

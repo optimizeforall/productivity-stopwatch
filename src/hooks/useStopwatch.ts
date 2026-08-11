@@ -13,6 +13,8 @@ type PersistedState = {
   tasks: Task[]
   accumulatedMs: number
   startedAt: number | null
+  idleAccumulatedMs: number
+  idleStartedAt: number | null
   status: Status
   theme: Theme
 }
@@ -33,9 +35,15 @@ function createInitialState(): PersistedState {
     tasks: [createBlankTask()],
     accumulatedMs: 0,
     startedAt: null,
+    idleAccumulatedMs: 0,
+    idleStartedAt: Date.now(),
     status: 'naming',
     theme: 'dark',
   }
+}
+
+function isIdle(status: Status): boolean {
+  return status === 'paused' || status === 'naming'
 }
 
 function isStatus(value: unknown): value is Status {
@@ -63,13 +71,23 @@ function loadState(): PersistedState {
     const status = isStatus(parsed.status) ? parsed.status : 'naming'
     const startedAt =
       typeof parsed.startedAt === 'number' ? parsed.startedAt : null
+    const resolvedStatus =
+      status === 'running' && startedAt == null ? 'paused' : status
+    const idleAccumulatedMs =
+      typeof parsed.idleAccumulatedMs === 'number' ? parsed.idleAccumulatedMs : 0
+    const storedIdleStartedAt =
+      typeof parsed.idleStartedAt === 'number' ? parsed.idleStartedAt : null
 
     return {
       tasks,
       accumulatedMs:
         typeof parsed.accumulatedMs === 'number' ? parsed.accumulatedMs : 0,
-      startedAt: status === 'running' ? startedAt : null,
-      status: status === 'running' && startedAt == null ? 'paused' : status,
+      startedAt: resolvedStatus === 'running' ? startedAt : null,
+      idleAccumulatedMs,
+      idleStartedAt: isIdle(resolvedStatus)
+        ? (storedIdleStartedAt ?? Date.now())
+        : null,
+      status: resolvedStatus,
       theme: parsed.theme === 'light' ? 'light' : 'dark',
     }
   } catch {
@@ -89,6 +107,39 @@ function completedDuration(tasks: Task[]): number {
   return tasks.slice(1).reduce((sum, task) => sum + task.durationMs, 0)
 }
 
+function idleElapsed(state: PersistedState, now: number): number {
+  if (isIdle(state.status) && state.idleStartedAt != null) {
+    return state.idleAccumulatedMs + Math.max(0, now - state.idleStartedAt)
+  }
+  return state.idleAccumulatedMs
+}
+
+function startIdle(
+  prev: PersistedState,
+  now: number,
+): Pick<PersistedState, 'idleAccumulatedMs' | 'idleStartedAt'> {
+  if (isIdle(prev.status) && prev.idleStartedAt != null) {
+    return {
+      idleAccumulatedMs: prev.idleAccumulatedMs,
+      idleStartedAt: prev.idleStartedAt,
+    }
+  }
+  return {
+    idleAccumulatedMs: prev.idleAccumulatedMs,
+    idleStartedAt: now,
+  }
+}
+
+function stopIdle(
+  prev: PersistedState,
+  now: number,
+): Pick<PersistedState, 'idleAccumulatedMs' | 'idleStartedAt'> {
+  return {
+    idleAccumulatedMs: idleElapsed(prev, now),
+    idleStartedAt: null,
+  }
+}
+
 export function useStopwatch() {
   const [state, setState] = useState<PersistedState>(loadState)
   const [now, setNow] = useState(() => Date.now())
@@ -106,10 +157,9 @@ export function useStopwatch() {
   }, [state.theme])
 
   useEffect(() => {
-    if (state.status !== 'running') return
     const id = window.setInterval(() => setNow(Date.now()), 250)
     return () => window.clearInterval(id)
-  }, [state.status])
+  }, [])
 
   useEffect(() => {
     const sync = () => setNow(Date.now())
@@ -122,6 +172,7 @@ export function useStopwatch() {
   }, [])
 
   const elapsed = currentElapsed(state, now)
+  const idleMs = idleElapsed(state, now)
   const totalMs =
     completedDuration(state.tasks) +
     (state.status === 'naming' ? 0 : elapsed)
@@ -135,7 +186,8 @@ export function useStopwatch() {
   const ship = useCallback(() => {
     setState((prev) => {
       if (prev.status === 'naming' || prev.tasks.length === 0) return prev
-      const frozen = currentElapsed(prev, Date.now())
+      const now = Date.now()
+      const frozen = currentElapsed(prev, now)
       const [current, ...rest] = prev.tasks
       return {
         ...prev,
@@ -147,6 +199,7 @@ export function useStopwatch() {
         accumulatedMs: 0,
         startedAt: null,
         status: 'naming',
+        ...startIdle(prev, now),
       }
     })
   }, [])
@@ -156,12 +209,14 @@ export function useStopwatch() {
       if (prev.status !== 'naming') return prev
       const name = prev.tasks[0]?.name.trim()
       if (!name) return prev
+      const now = Date.now()
       return {
         ...prev,
         tasks: [{ ...prev.tasks[0], name, durationMs: 0 }, ...prev.tasks.slice(1)],
         accumulatedMs: 0,
-        startedAt: Date.now(),
+        startedAt: now,
         status: 'running',
+        ...stopIdle(prev, now),
       }
     })
   }, [])
@@ -169,7 +224,8 @@ export function useStopwatch() {
   const pause = useCallback(() => {
     setState((prev) => {
       if (prev.status !== 'running') return prev
-      const frozen = currentElapsed(prev, Date.now())
+      const now = Date.now()
+      const frozen = currentElapsed(prev, now)
       return {
         ...prev,
         accumulatedMs: frozen,
@@ -179,6 +235,7 @@ export function useStopwatch() {
           { ...prev.tasks[0], durationMs: frozen },
           ...prev.tasks.slice(1),
         ],
+        ...startIdle(prev, now),
       }
     })
   }, [])
@@ -186,10 +243,12 @@ export function useStopwatch() {
   const resume = useCallback(() => {
     setState((prev) => {
       if (prev.status !== 'paused') return prev
+      const now = Date.now()
       return {
         ...prev,
-        startedAt: Date.now(),
+        startedAt: now,
         status: 'running',
+        ...stopIdle(prev, now),
       }
     })
   }, [])
@@ -224,6 +283,7 @@ export function useStopwatch() {
     theme: state.theme,
     currentMs: elapsed,
     totalMs,
+    idleMs,
     canBegin: (state.tasks[0]?.name.trim().length ?? 0) > 0,
     ship,
     begin,
